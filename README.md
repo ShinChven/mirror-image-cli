@@ -2,6 +2,8 @@
 
 A simple command-line tool to mirror image files horizontally or vertically.
 
+[deepwiki](https://deepwiki.com/ShinChven/mirror-image-cli)
+
 ## Features
 
 *   Mirror individual image files or all supported images within a directory.
