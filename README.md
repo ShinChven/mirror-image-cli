@@ -16,23 +16,12 @@ A simple command-line tool to mirror image files horizontally or vertically.
 
 This package is not available on PyPI. You can install it directly from the GitHub repository.
 
-**Option 1: Clone and Install Locally**
-
-```bash
-# Clone the repository
-git clone https://github.com/ShinChven/mirror-image-cli.git
-
-# Navigate into the project directory
-cd mirror-image-cli
-
-# Install the package using pip
-pip install .
-```
-
-**Option 2: Install Directly from GitHub URL**
-
 ```bash
 pip install git+https://github.com/ShinChven/mirror-image-cli.git
+```
+
+```bash
+pip install --upgrade git+https://github.com/ShinChven/mirror-image-cli.git
 ```
 
 ## Usage
