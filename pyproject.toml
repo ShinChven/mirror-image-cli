@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "mirror-image-cli"
 version = "0.1.0"
 authors = [
-  { name="Your Name", email="you@example.com" },
+  { name="ShinChven", email="shinchven@gmail.com" },
 ]
 description = "A CLI tool to mirror images horizontally or vertically."
 readme = "README.md"
@@ -22,8 +22,8 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/mirror-image" # Optional: Replace with your repo URL
-"Bug Tracker" = "https://github.com/yourusername/mirror-image/issues" # Optional: Replace with your repo URL
+"Homepage" = "https://github.com/ShinChven/mirror-image-cli"
+"Bug Tracker" = "https://github.com/ShinChven/mirror-image-cli/issues"
 
 [project.scripts]
 mirror-image = "mirror_image:app"
