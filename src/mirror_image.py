@@ -12,12 +12,14 @@ SUPPORTED_OUTPUT_TYPES = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'}
 
 def process_image(
     image_path: Path,
-    output_dir: Optional[Path],
+    output_dir_name: Optional[str], # Changed type to str
     vertical: bool,
     output_type: Optional[str]
 ):
     """Opens, mirrors, and saves a single image."""
     try:
+        # Ensure we are working with an absolute path to reliably get the parent
+        image_path = image_path.resolve()
         img = Image.open(image_path)
     except UnidentifiedImageError:
         typer.echo(f"Skipping non-image file: {image_path.name}", err=True)
@@ -46,10 +48,12 @@ def process_image(
 
 
     # Determine output path
-    if output_dir:
-        output_path = output_dir / f"{output_stem}{output_ext}"
-        output_dir.mkdir(parents=True, exist_ok=True) # Ensure output dir exists
-    else:
+    if output_dir_name:
+        # Create the output dir relative to the original image's parent dir using the provided name string
+        target_parent_dir = image_path.parent / output_dir_name
+        target_parent_dir.mkdir(parents=True, exist_ok=True)
+        output_path = target_parent_dir / f"{output_stem}{output_ext}"
+    else: # No output_dir provided, save alongside original
         output_path = image_path.parent / f"{output_stem}{output_ext}"
 
     # Save the image
@@ -66,7 +70,7 @@ def process_image(
 
 
         mirrored_img.save(output_path, format=save_format.upper(), **save_kwargs)
-        typer.echo(f"Processed '{image_path.name}' -> '{output_path.name}'")
+        typer.echo(f"Processed '{image_path.resolve()}' -> '{output_path.resolve()}'")
     except Exception as e:
         typer.echo(f"Error saving image {output_path.name}: {e}", err=True)
     finally:
@@ -81,16 +85,17 @@ def main(
         dir_okay=True,
         readable=True,
         resolve_path=True,
-        help="Path to the image file or directory containing images."
+        help="Path to the image file or directory containing images." # Removed recursive mention
     )],
     vertical: Annotated[bool, typer.Option("--vertical", "-v", help="Mirror vertically instead of horizontally.")] = False,
-    output_dir: Annotated[Optional[Path], typer.Option(
+    output_dir: Annotated[Optional[str], typer.Option( # Changed type to Optional[str]
         "--output-dir", "-d",
-        help="Directory to save mirrored images. If not provided, saves alongside original.",
-        file_okay=False,
-        dir_okay=True,
-        writable=True,
-        resolve_path=True,
+        # Updated help text to reflect relative creation
+        help="Directory name to create within the original image's parent directory to save mirrored images. If not provided, saves alongside original.",
+        file_okay=False, # Should represent a directory name
+        dir_okay=False, # It's just a name now, not necessarily an existing dir
+        writable=False, # Cannot check writability of a non-existent relative name
+        resolve_path=False, # Do not resolve this path relative to CWD
     )] = None,
     output_type: Annotated[Optional[str], typer.Option(
         "--type", "-t",
@@ -99,6 +104,7 @@ def main(
 ):
     """
     Mirrors an image or all images in a directory either horizontally (default) or vertically.
+    # Removed recursive mention from docstring
     """
     if output_type and output_type.lower() not in SUPPORTED_OUTPUT_TYPES:
         typer.echo(f"Error: Unsupported output type '{output_type}'. Supported types are: {', '.join(SUPPORTED_OUTPUT_TYPES)}", err=True)
@@ -110,14 +116,15 @@ def main(
             raise typer.Exit(code=1)
         process_image(input_path, output_dir, vertical, output_type)
     elif input_path.is_dir():
-        typer.echo(f"Processing images in directory: {input_path}")
+        typer.echo(f"Processing images in directory: {input_path}") # Removed "(recursively)"
         processed_count = 0
+        # Use iterdir for non-recursive search
         for item in input_path.iterdir():
             if item.is_file() and item.suffix.lower() in SUPPORTED_INPUT_TYPES:
                 process_image(item, output_dir, vertical, output_type)
                 processed_count += 1
         if processed_count == 0:
-             typer.echo("No supported image files found in the directory.")
+             typer.echo("No supported image files found in the directory.") # Removed "or its subdirectories"
         else:
             typer.echo(f"Finished processing {processed_count} image(s).")
 
